@@ -2,6 +2,7 @@ package com.ico.vrp.controller;
 
 import com.ico.vrp.model.Location;
 import com.ico.vrp.model.Request;
+import com.ico.vrp.model.Response;
 import com.ico.vrp.service.RequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,7 +26,7 @@ public class RequestController {
     }
 
     @GetMapping("/test")
-    public void test() {
+    public Location[] test() {
         Location l1 = new Location(135.0012, 100.1253);
         Location l2 = new Location(50.0011, 12.1254);
         Location l3 = new Location(100.0020, 123.1253);
@@ -35,8 +36,7 @@ public class RequestController {
 
         Request request = new Request(new Location[]{l1, l2, l3, l4, l5, l6});
 
-        requestService.processRequest(request);
-
+        return requestService.processRequest(request);
     }
 
 }

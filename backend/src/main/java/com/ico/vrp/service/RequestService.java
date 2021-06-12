@@ -1,9 +1,9 @@
-package com.ico.vrp.service;
+package main.java.com.ico.vrp.service;
 
-import com.ico.vrp.model.Location;
-import com.ico.vrp.model.Request;
-import com.ico.vrp.model.Response;
-import com.ico.vrp.model.VehicleRoutingProblem;
+import main.java.com.ico.vrp.model.Location;
+import main.java.com.ico.vrp.model.Request;
+import main.java.com.ico.vrp.model.Response;
+import main.java.com.ico.vrp.model.VehicleRoutingProblem;
 import io.jenetics.*;
 import io.jenetics.engine.Engine;
 import io.jenetics.engine.EvolutionStatistics;

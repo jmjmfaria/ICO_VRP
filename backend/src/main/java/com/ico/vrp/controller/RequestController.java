@@ -1,9 +1,9 @@
-package com.ico.vrp.controller;
+package main.java.com.ico.vrp.controller;
 
-import com.ico.vrp.model.Location;
-import com.ico.vrp.model.Request;
-import com.ico.vrp.model.Response;
-import com.ico.vrp.service.RequestService;
+import main.java.com.ico.vrp.model.Location;
+import main.java.com.ico.vrp.model.Request;
+import main.java.com.ico.vrp.model.Response;
+import main.java.com.ico.vrp.service.RequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;

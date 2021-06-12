@@ -1,4 +1,4 @@
-package com.ico.vrp.model;
+package main.java.com.ico.vrp.model;
 
 import io.jenetics.EnumGene;
 import io.jenetics.engine.Codec;

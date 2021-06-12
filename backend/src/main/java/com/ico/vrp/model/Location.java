@@ -1,4 +1,4 @@
-package com.ico.vrp.model;
+package main.java.com.ico.vrp.model;
 
 public class Location {
 

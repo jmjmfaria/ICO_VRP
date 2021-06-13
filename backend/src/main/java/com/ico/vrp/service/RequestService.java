@@ -2,7 +2,6 @@ package main.java.com.ico.vrp.service;
 
 import main.java.com.ico.vrp.model.Location;
 import main.java.com.ico.vrp.model.Request;
-import main.java.com.ico.vrp.model.Response;
 import main.java.com.ico.vrp.model.VehicleRoutingProblem;
 import io.jenetics.*;
 import io.jenetics.engine.Engine;
@@ -22,7 +21,8 @@ public class RequestService {
 
     public Location[] processRequest(Request request) {
         ISeq<Location> locations = ISeq.of(request.getLocations());
-        VehicleRoutingProblem vrp = new VehicleRoutingProblem(locations);
+        Location warehouse = request.getWarehouse();
+        VehicleRoutingProblem vrp = new VehicleRoutingProblem(warehouse, locations);
         Engine<EnumGene<Location>, Double> engine = Engine
                 .builder(vrp)
                 .optimize(Optimize.MINIMUM)
@@ -48,15 +48,16 @@ public class RequestService {
         System.out.println(best.genotype().geneCount());
         System.out.println(best.genotype().length());
 
-        Iterator itr = best.genotype().chromosome().iterator();
-        Location[] path = new Location[best.genotype().chromosome().length()];
-        int count = 0;
+        Iterator<EnumGene<Location>> itr = best.genotype().chromosome().iterator();
+        Location[] path = new Location[best.genotype().chromosome().length()+2];
 
-        while (itr.hasNext()) {
-            EnumGene<Location> gene = (EnumGene<Location>) itr.next();
-            path[count] = gene.allele();
-            count++;
-            System.out.println(gene.allele());
+        for(int i = 0; i < path.length; i++) {
+            if(i == 0 || i == path.length - 1) {
+                path[i] = warehouse;
+            } else {
+                EnumGene<Location> gene = itr.next();
+                path[i] = gene.allele();
+            }
         }
 
         return path;

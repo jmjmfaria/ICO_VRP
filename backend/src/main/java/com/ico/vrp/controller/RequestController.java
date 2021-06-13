@@ -34,7 +34,7 @@ public class RequestController {
         Location l5 = new Location(87.0017, 57.1260);
         Location l6 = new Location(17.0016, 12.1249);
 
-        Request request = new Request(new Location[]{l1, l2, l3, l4, l5, l6});
+        Request request = new Request(l1, new Location[]{l2, l3, l4, l5, l6});
 
         return requestService.processRequest(request);
     }

@@ -76,9 +76,11 @@ function newLocation() {
     }
     var newEntry = ''
     var infoID = locations[option].push(location) - 1
-    console.log(option)
+    console.log(locations)
+    console.log(infoID)
     if (option == 'armazens') {
         newEntry = getArmazemHTML(markerID,input,option,infoID)
+        updateWarehouses()
     } else if (option == 'clientes') {
         newEntry = getClienteHTML(markerID,input,option,infoID)
     }      
@@ -108,6 +110,9 @@ function delLocation(type, infoid, markerid){
     console.log(type, infoid, markerid)
     //locations[type].splice(infoid,1)
     delete locations[type][infoid]
+    if (type == 'armazens') {
+        updateWarehouses()
+    }
     mymap.removeLayer(markers[markerid])
     //markers.splice(markerid,1)
     delete markers[markerid]
@@ -185,6 +190,7 @@ function getVehicleHTML(){
         "cargaTotal": 10,
         "deslocMax": 10
     })
+    console.log(vehID)
     var s = ''
     s += '<div class="accordion-item" id="veiculos'+vehID+'">'+
             '<h2 class="accordion-header" id="heading'+vehID+'">'+
@@ -208,6 +214,12 @@ function getVehicleHTML(){
                             '</div>'+
                         '</div>'+
                         '<div class="row">'+
+                            '<select class="form-select mb-3" id="vehID'+vehID+'" aria-label="Vehicle '+vehID+' select label">' +
+                                getWarehouses() +
+                            '</select>' +
+                        '</div>'+
+                        
+                        '<div class="row">'+
                             '<button type="button" class="btn btn-outline-danger" onclick="delVehicle('+vehID+')">Remover</button>'+
                         '</div>'+
                     '</div>'+
@@ -216,6 +228,25 @@ function getVehicleHTML(){
         '</div>'
     return s
 }
+function updateWarehouses(){
+    var currWarehouses = getWarehouses()
+    locations.veiculos.forEach(function(item, vehID){
+        vehID = vehID + 1
+        console.log($("#vehID"+vehID).html())
+        $("#vehID"+vehID).html(currWarehouses)
+        console.log($("#vehID"+vehID).html())
+    })
+ }   
+
+function getWarehouses() {
+    if (locations.armazens.filter(n => n !== null || n !== undefined).length > 0 ) {
+        var s='<option value="0" selected>Selecionar armazem de saida</option>'
+        locations.armazens.forEach(function(item){
+            s+='<option value="'+item.name+'">'+item.name+'</option>'
+        })
+        return s
+    } else return '<option value="0" selected>Nao existem armazens</option>'
+}
 
 function getRoutes(){
     var body = {
@@ -223,32 +254,49 @@ function getRoutes(){
         "clientes":[],
         "veiculos":[]
     }
-    locations.armazens.forEach(function(item,armazemID){
+    locations.armazens.forEach(function(item){
         body.armazens.push(item)
     })
 
-    locations.clientes.forEach(function(item,clienteID){
-        $("#parcial"+clienteID+"").is(":checked")
-        item['quantity'] = parseInt($("#quantity"+clienteID+"").val())
-        item['price'] = parseInt($("#price"+clienteID+"").val())
-        item['timeWindow'] = [$("#time1"+clienteID+"").val(),$("#time2"+clienteID+"").val()]
-        item['allowParcial'] = $("#parcial"+clienteID+"").is(":checked")
+    locations.clientes.forEach(function(item){
+        item['quantity'] = parseInt($("#quantity"+item.markerID+"").val())
+        item['price'] = parseInt($("#price"+item.markerID+"").val())
+        item['timeWindow'] = [$("#time1"+item.markerID+"").val(),$("#time2"+item.markerID+"").val()]
+        item['allowParcial'] = $("#parcial"+item.markerID+"").is(":checked")
         body.clientes.push(item)
     })
     locations.veiculos.forEach(function(item, vehID){
         vehID = vehID + 1
         item.cargaTotal = parseInt($("#carga"+vehID+"").val())
         item.deslocMax = parseInt($("#dist"+vehID+"").val())
-        body.veiculos.push(item)
+        if ($("#vehID"+vehID+"").val() == "0") {
+            
+            return $('.toast').toast('show')
+        } else {
+            item.armazemPartida = $("#vehID"+vehID+"").val()
+            body.veiculos.push(item)
+        } 
     })
 
-    console.log(body)
+    /* $.ajax({
+        url: "/api/users/:id/videos",
+        method: "post",
+        data: body,
+        success: function (res, status) {
+            console.log(res)
+        }
+        ,error: function () { alert(JSON.stringify('error')); }
+
+    }); */
+
+    /* $.getJSON("geodata/Portugal.json", function (data) {
+        geojson = L.geoJson(data, { style: style, onEachFeature: onEachFeature }).addTo(mymap);
+    }); */
+
+    var latlngs = [ [38.91,-77.07], [37.77, -79.43], [39.04, -85.2]];
+    var polyline = L.polyline(latlngs, {color: 'red'});
+    polyline.addTo(mymap);
+
+    console.log(JSON.stringify(body))
 }
 
-function myFunction(item, vehID) {
-    vehID = vehID + 1
-    console.log(item)
-    console.log($("#veiculosList #veiculos"+vehID+" h2 button").html())
-    console.log($("#carga"+vehID+"").val())
-    console.log($("#dist"+vehID+"").val())
-}

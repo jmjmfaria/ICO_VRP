@@ -11,18 +11,28 @@ public class Customer {
     private int[] timeWindow;
     private int quantity;
     private double price;
-    private boolean allowPartial;
 
-    public Customer(double latitude, double longitude, String[] timeWindow, int quantity, double price, boolean allowPartial) {
+    public Customer(double latitude, double longitude, String[] timeWindow, int quantity, double price) {
         this.location = new Location(latitude, longitude);
         this.timeWindow = generateTimeWindow(timeWindow);
         this.quantity = quantity;
         this.price = price;
-        this.allowPartial = allowPartial;
     }
 
     public Location getLocation() {
         return location;
+    }
+
+    public int[] getTimeWindow() {
+        return timeWindow;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public double getPrice() {
+        return price;
     }
 
     private int[] generateTimeWindow(String[] timeWindow){
@@ -38,5 +48,4 @@ public class Customer {
         }
         return parsed;
     }
-
 }

@@ -26,4 +26,7 @@ public class Vehicle {
         return deslocMax;
     }
 
+    public int getId() {
+        return id;
+    }
 }

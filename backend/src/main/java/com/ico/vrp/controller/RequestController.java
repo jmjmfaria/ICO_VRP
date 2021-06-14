@@ -1,5 +1,6 @@
 package main.java.com.ico.vrp.controller;
 
+import main.java.com.ico.vrp.model.FullResponse;
 import main.java.com.ico.vrp.model.Location;
 import main.java.com.ico.vrp.model.Request;
 import main.java.com.ico.vrp.service.RequestService;
@@ -19,7 +20,7 @@ public class RequestController {
     }
 
     @PostMapping("/request")
-    public Location[] request(@RequestBody Request request) {
+    public FullResponse[] request(@RequestBody Request request) {
         return requestService.processRequest(request);
     }
 

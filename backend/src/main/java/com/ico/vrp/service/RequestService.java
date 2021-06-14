@@ -1,9 +1,6 @@
 package main.java.com.ico.vrp.service;
 
-import main.java.com.ico.vrp.model.Customer;
-import main.java.com.ico.vrp.model.Location;
-import main.java.com.ico.vrp.model.Request;
-import main.java.com.ico.vrp.model.VehicleRoutingProblem;
+import main.java.com.ico.vrp.model.*;
 import io.jenetics.*;
 import io.jenetics.engine.Engine;
 import io.jenetics.engine.EvolutionStatistics;
@@ -20,7 +17,7 @@ public class RequestService {
     @Autowired
     public RequestService() {}
 
-    public Location[] processRequest(Request request) {
+    public FullResponse[] processRequest(Request request) {
         ISeq<Customer> customers = ISeq.of(request.getClientes());
         Location warehouse = request.getWarehouse();
         VehicleRoutingProblem vrp = new VehicleRoutingProblem(warehouse, customers);
@@ -61,7 +58,19 @@ public class RequestService {
             }
         }
 
-        return path;
+
+        // Codigo de Exemplo
+
+        // Varios Clientes
+        SingleResponse c1 = new SingleResponse(request.getVeiculos()[0].getId(), path);
+        SingleResponse c2 = new SingleResponse(request.getVeiculos()[0].getId(), path);
+
+        // Resposta Final
+        FullResponse test = new FullResponse(new SingleResponse[]{c1, c2});
+
+        FullResponse[] result = new FullResponse[]{test};
+
+        return result;
     }
 
 }

@@ -14,6 +14,10 @@ public class Request {
         return clientes;
     }
 
+    public Vehicle[] getVeiculos() {
+        return veiculos;
+    }
+
     public Location getWarehouse() { return veiculos[0].getArmazemPartida(); }
 
 }

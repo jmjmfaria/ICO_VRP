@@ -7,24 +7,18 @@ import java.util.Date;
 
 public class Customer {
 
-    private Location location;
-    private int[] timeWindow;
-    private int quantity;
-    private double price;
+    private final Location location;
+    private final int quantity;
+    private final double price;
 
     public Customer(double latitude, double longitude, String[] timeWindow, int quantity, double price) {
-        this.location = new Location(latitude, longitude);
-        this.timeWindow = generateTimeWindow(timeWindow);
+        this.location = new Location(latitude, longitude, generateTimeWindow(timeWindow));
         this.quantity = quantity;
         this.price = price;
     }
 
     public Location getLocation() {
         return location;
-    }
-
-    public int[] getTimeWindow() {
-        return timeWindow;
     }
 
     public int getQuantity() {

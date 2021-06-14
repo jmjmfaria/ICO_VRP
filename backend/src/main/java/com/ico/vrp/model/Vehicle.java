@@ -2,9 +2,9 @@ package main.java.com.ico.vrp.model;
 
 public class Vehicle {
 
-    private int cargaTotal;
-    private int deslocMax;
-    private Location armazemPartida;
+    private final int cargaTotal;
+    private final int deslocMax;
+    private final Location armazemPartida;
 
     public Vehicle(int cargaTotal, int deslocMax, Location armazemPartida) {
         this.cargaTotal = cargaTotal;

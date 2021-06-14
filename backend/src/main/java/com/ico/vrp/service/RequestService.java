@@ -17,7 +17,9 @@ public class RequestService {
     @Autowired
     public RequestService() {}
 
-    public FullResponse[] processRequest(Request request) {
+    public FullResponse processRequest(Request request) {
+        FullResponse finalResult = new FullResponse();
+
         ISeq<Customer> customers = ISeq.of(request.getClientes());
         Location warehouse = request.getWarehouse();
         VehicleRoutingProblem vrp = new VehicleRoutingProblem(warehouse, customers);
@@ -65,12 +67,10 @@ public class RequestService {
         SingleResponse c1 = new SingleResponse(request.getVeiculos()[0].getId(), path);
         SingleResponse c2 = new SingleResponse(request.getVeiculos()[0].getId(), path);
 
-        // Resposta Final
-        FullResponse test = new FullResponse(new SingleResponse[]{c1, c2});
+        finalResult.addResult(c1);
+        finalResult.addResult(c2);
 
-        FullResponse[] result = new FullResponse[]{test};
-
-        return result;
+        return finalResult;
     }
 
 }

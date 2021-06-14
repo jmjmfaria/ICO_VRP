@@ -20,7 +20,7 @@ public class RequestController {
     }
 
     @PostMapping("/request")
-    public FullResponse[] request(@RequestBody Request request) {
+    public FullResponse request(@RequestBody Request request) {
         return requestService.processRequest(request);
     }
 

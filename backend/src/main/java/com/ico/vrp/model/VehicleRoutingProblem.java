@@ -1,7 +1,6 @@
 package main.java.com.ico.vrp.model;
 
-import io.jenetics.EnumGene;
-import io.jenetics.Phenotype;
+import io.jenetics.*;
 import io.jenetics.engine.Codec;
 import io.jenetics.engine.Codecs;
 import io.jenetics.engine.Constraint;
@@ -9,15 +8,15 @@ import io.jenetics.engine.Problem;
 import io.jenetics.util.ISeq;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
 import static java.lang.Math.hypot;
-import static java.util.Objects.requireNonNull;
 
-public class VehicleRoutingProblem implements Problem<ISeq<Visitable>, EnumGene<Visitable>, Double> {
+public class VehicleRoutingProblem implements Problem<ISeq<Visitable>, EnumGene<Visitable>, Double>, Constraint<EnumGene<Visitable>, Double> {
 
     //private final ISeq<Customer> customers;
     private final Location warehouse;
@@ -32,7 +31,6 @@ public class VehicleRoutingProblem implements Problem<ISeq<Visitable>, EnumGene<
         this.warehouse = warehouse;
         List<Visitable> locations = new LinkedList(Arrays.asList(customers));
         locations.add(warehouse);
-        //locations.add(warehouse);
         locations.add(new Visitable(warehouse.getLatitude(), warehouse.getLongitude(), new int[]{0,0}));
         this.locationsToVisit = ISeq.of(locations);
     }
@@ -60,6 +58,66 @@ public class VehicleRoutingProblem implements Problem<ISeq<Visitable>, EnumGene<
     @Override
     public Codec<ISeq<Visitable>, EnumGene<Visitable>> codec() {
         return Codecs.ofPermutation(locationsToVisit);
+    }
+
+    @Override
+    public boolean test(Phenotype<EnumGene<Visitable>, Double> phenotype) {
+        Iterator<EnumGene<Visitable>> itr = phenotype.genotype().chromosome().iterator();
+        boolean first = true;
+
+        while (itr.hasNext()) {
+            Visitable location = itr.next().allele();
+
+            if (first && (location.getLatitude() != warehouse.getLatitude() || location.getLongitude() != warehouse.getLongitude())) {
+                return false;
+            } else if (first) {
+                first = false;
+            } else if (!itr.hasNext() && (location.getLatitude() != warehouse.getLatitude() || location.getLongitude() != warehouse.getLongitude())) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    @Override
+    public Phenotype<EnumGene<Visitable>, Double> repair(Phenotype<EnumGene<Visitable>, Double> phenotype, long generation) {
+        return Phenotype.of(
+                Genotype.of(
+                        PermutationChromosome.of(
+                                ISeq.of(repair((Visitable[]) phenotype.genotype().chromosome().stream().toArray()))
+                        )
+                ), generation
+        );
+    }
+
+    private Visitable[] repair(Visitable[] toRepair) {
+        Visitable first = toRepair[0];
+        Visitable last = toRepair[toRepair.length - 1];
+
+        if (first.getLatitude() != warehouse.getLatitude() || first.getLongitude() != warehouse.getLongitude()) {
+            for (int i = 0; i <= toRepair.length; i++) {
+                Visitable aux = toRepair[i];
+
+                if (aux.getLatitude() == warehouse.getLatitude() && aux.getLongitude() == warehouse.getLongitude()) {
+                    toRepair[0] = aux;
+                    toRepair[i] = first;
+                }
+            }
+        }
+
+        if (last.getLatitude() != warehouse.getLatitude() || last.getLongitude() != warehouse.getLongitude()) {
+            for (int i = 0; i <= toRepair.length; i++) {
+                Visitable aux = toRepair[i];
+
+                if (aux.getLatitude() == warehouse.getLatitude() && aux.getLongitude() == warehouse.getLongitude()) {
+                    toRepair[toRepair.length - 1] = aux;
+                    toRepair[i] = first;
+                }
+            }
+        }
+
+        return toRepair;
     }
 
 }

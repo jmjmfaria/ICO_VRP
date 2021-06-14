@@ -59,10 +59,10 @@ public class RequestService {
 
         // Varios Clientes
         SingleResponse c1 = new SingleResponse(request.getVeiculos()[0].getId(), path);
-        SingleResponse c2 = new SingleResponse(request.getVeiculos()[0].getId(), path);
+        //SingleResponse c2 = new SingleResponse(request.getVeiculos()[0].getId(), path);
 
         finalResult.addResult(c1);
-        finalResult.addResult(c2);
+        //finalResult.addResult(c2);
 
         return finalResult;
     }

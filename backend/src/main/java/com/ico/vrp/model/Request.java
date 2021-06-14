@@ -18,6 +18,6 @@ public class Request {
         return veiculos;
     }
 
-    public Location getWarehouse() { return veiculos[0].getArmazemPartida(); }
+    public Visitable getWarehouse() { return veiculos[0].getArmazemPartida(); }
 
 }

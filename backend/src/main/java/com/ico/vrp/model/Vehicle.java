@@ -6,15 +6,15 @@ public class Vehicle {
     private int cargaTotal;
     private int deslocMax;
 
-    private Location armazemPartida;
+    private Visitable armazemPartida;
 
     public Vehicle(int cargaTotal, int deslocMax, Location armazemPartida) {
         this.cargaTotal = cargaTotal;
         this.deslocMax = deslocMax;
-        this.armazemPartida = armazemPartida;
+        this.armazemPartida = new Visitable(armazemPartida, new int[]{0,0});
     }
 
-    public Location getArmazemPartida() {
+    public Visitable getArmazemPartida() {
         return armazemPartida;
     }
 

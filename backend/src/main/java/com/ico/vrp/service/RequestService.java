@@ -6,7 +6,6 @@ import io.jenetics.engine.Engine;
 import io.jenetics.engine.EvolutionStatistics;
 import static io.jenetics.engine.EvolutionResult.toBestPhenotype;
 import static io.jenetics.engine.Limits.bySteadyFitness;
-import io.jenetics.util.ISeq;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.Iterator;
@@ -20,10 +19,10 @@ public class RequestService {
     public FullResponse processRequest(Request request) {
         FullResponse finalResult = new FullResponse();
 
-        ISeq<Customer> customers = ISeq.of(request.getClientes());
-        Location warehouse = request.getWarehouse();
-        VehicleRoutingProblem vrp = new VehicleRoutingProblem(warehouse, customers);
-        Engine<EnumGene<Customer>, Double> engine = Engine
+        //ISeq<Customer> customers = ISeq.of(request.getClientes());
+        Visitable warehouse = request.getWarehouse();
+        VehicleRoutingProblem vrp = new VehicleRoutingProblem(warehouse, request.getClientes());
+        Engine<EnumGene<Visitable>, Double> engine = Engine
                 .builder(vrp)
                 .optimize(Optimize.MINIMUM)
                 .maximalPhenotypeAge(11)
@@ -35,7 +34,7 @@ public class RequestService {
 
         EvolutionStatistics<Double, ?> statistics = EvolutionStatistics.ofNumber();
 
-        Phenotype<EnumGene<Customer>, Double> best = engine.stream()
+        Phenotype<EnumGene<Visitable>, Double> best = engine.stream()
                 .limit(bySteadyFitness(25))
                 .limit(250)
                 .peek(statistics)
@@ -48,18 +47,13 @@ public class RequestService {
         System.out.println(best.genotype().geneCount());
         System.out.println(best.genotype().length());
 
-        Iterator<EnumGene<Customer>> itr = best.genotype().chromosome().iterator();
-        Location[] path = new Location[best.genotype().chromosome().length()+2];
+        Iterator<EnumGene<Visitable>> itr = best.genotype().chromosome().iterator();
+        Location[] path = new Location[best.genotype().chromosome().length()];
 
-        for(int i = 0; i < path.length; i++) {
-            if(i == 0 || i == path.length - 1) {
-                path[i] = warehouse;
-            } else {
-                EnumGene<Customer> gene = itr.next();
-                path[i] = gene.allele().getLocation();
-            }
+        for (int i = 0; i < path.length; i++) {
+            EnumGene<Visitable> gene = itr.next();
+            path[i] = new Location(gene.allele().getLatitude(), gene.allele().getLongitude());
         }
-
 
         // Codigo de Exemplo
 

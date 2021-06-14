@@ -4,12 +4,10 @@ public class Location {
 
     private final double latitude;
     private final double longitude;
-    private final int[] timeWindow;
 
-    public Location(double latitude, double longitude, int[] timeWindow) {
+    public Location(double latitude, double longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
-        this.timeWindow = timeWindow;
     }
 
     public double getLatitude() {
@@ -18,10 +16,6 @@ public class Location {
 
     public double getLongitude() {
         return longitude;
-    }
-
-    public int[] getTimeWindow() {
-        return timeWindow;
     }
 
     @Override

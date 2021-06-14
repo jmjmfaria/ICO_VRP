@@ -5,20 +5,15 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-public class Customer {
+public class Customer extends Visitable {
 
-    private final Location location;
     private final int quantity;
     private final double price;
 
     public Customer(double latitude, double longitude, String[] timeWindow, int quantity, double price) {
-        this.location = new Location(latitude, longitude, generateTimeWindow(timeWindow));
+        super(latitude, longitude, generateTimeWindow(timeWindow));
         this.quantity = quantity;
         this.price = price;
-    }
-
-    public Location getLocation() {
-        return location;
     }
 
     public int getQuantity() {
@@ -29,7 +24,7 @@ public class Customer {
         return price;
     }
 
-    private int[] generateTimeWindow(String[] timeWindow){
+    private static int[] generateTimeWindow(String[] timeWindow){
         int[] parsed = new int[2];
         Calendar cal = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");

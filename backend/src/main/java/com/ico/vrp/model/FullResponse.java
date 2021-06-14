@@ -1,7 +1,5 @@
 package main.java.com.ico.vrp.model;
 
-import java.util.Arrays;
-
 public class FullResponse {
 
     private SingleResponse[] results = new SingleResponse[0];

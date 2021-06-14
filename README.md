@@ -1,10 +1,10 @@
 # ICO_VRP
 
-Projeto desenvolvido no âmbito da cadeira Inteligência Computacional e Otimização
+Projeto desenvolvido no âmbito da Unidade Curricular Inteligência Computacional e Otimização
 
 ----------------------------------------------------------------------------------------------------------------
 
-Professor: Vitor Basto Fernandes
+Docentes: Vítor Manuel Basto Fernandes e Maria do Rosário Domingos Laureano
 
 Alunos: 
 
@@ -13,7 +13,9 @@ Alunos:
 * João Miguel Faria, nº 78980 
 * Tiago Farinha, nº 82358
 
-------------------------------------------------------------------------
+ISCTE - Instituto Universitário de Lisboa
+
+---------------------------------------------------------------------------------------
 
 Projeto composto por duas componentes:
 
@@ -26,6 +28,6 @@ Setup das Componentes
 
 	1) Importar Projeto "backend" do repositório
 
-* FrontEnd:
+* Frontend:
 
 	1) Teste

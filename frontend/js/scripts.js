@@ -250,32 +250,37 @@ function getWarehouses() {
 
 function getRoutes(){
     var body = {
-        "armazens":[],
         "clientes":[],
         "veiculos":[]
     }
-    locations.armazens.forEach(function(item){
-        body.armazens.push(item)
+    locations.veiculos.forEach(function(veh, vehID){
+        vehID = vehID + 1
+        veh.cargaTotal = parseInt($("#carga"+vehID+"").val())
+        veh.deslocMax = parseInt($("#dist"+vehID+"").val())
+        if ($("#vehID"+vehID+"").val() == "0") {
+            return $('.toast').toast('show')
+        } else {
+            veh.armazemPartida = {}
+            locations.armazens.forEach(function(item){
+                if($("#vehID"+vehID).val() == item.name ){
+                    veh.armazemPartida.latitude = item.latitude
+                    veh.armazemPartida.longitude = item.longitude
+                }
+            })
+            body.veiculos.push(veh)
+        }
     })
 
     locations.clientes.forEach(function(item){
-        item['quantity'] = parseInt($("#quantity"+item.markerID+"").val())
-        item['price'] = parseInt($("#price"+item.markerID+"").val())
-        item['timeWindow'] = [$("#time1"+item.markerID+"").val(),$("#time2"+item.markerID+"").val()]
-        item['allowParcial'] = $("#parcial"+item.markerID+"").is(":checked")
-        body.clientes.push(item)
-    })
-    locations.veiculos.forEach(function(item, vehID){
-        vehID = vehID + 1
-        item.cargaTotal = parseInt($("#carga"+vehID+"").val())
-        item.deslocMax = parseInt($("#dist"+vehID+"").val())
-        if ($("#vehID"+vehID+"").val() == "0") {
-            
-            return $('.toast').toast('show')
-        } else {
-            item.armazemPartida = $("#vehID"+vehID+"").val()
-            body.veiculos.push(item)
-        } 
+        var itemObject = jQuery.extend(true, {}, item)
+        itemObject['quantity'] = parseInt($("#quantity"+itemObject.markerID+"").val())
+        itemObject['price'] = parseInt($("#price"+itemObject.markerID+"").val())
+        itemObject['timeWindow'] = [$("#time1"+itemObject.markerID+"").val(),$("#time2"+itemObject.markerID+"").val()]
+        itemObject['allowParcial'] = $("#parcial"+itemObject.markerID+"").is(":checked")
+
+        delete itemObject.markerID
+        delete itemObject.name
+        body.clientes.push(itemObject)
     })
 
     /* $.ajax({
@@ -288,12 +293,16 @@ function getRoutes(){
         ,error: function () { alert(JSON.stringify('error')); }
 
     }); */
+    $("#percurso").html($("#percurso").html()+
+    "<dl>" +
+    "<dt>Veiculo 1</dt>" +
+    "<dd>- Client 1</dd>" +
+    "<dd>- Client 3</dd>" +
+    "<dt>Veiculo 2</dt>" +
+    "<dd>- Cliente 2</dd>" +
+    "</dl>") 
 
-    /* $.getJSON("geodata/Portugal.json", function (data) {
-        geojson = L.geoJson(data, { style: style, onEachFeature: onEachFeature }).addTo(mymap);
-    }); */
-
-    var latlngs = [ [38.91,-77.07], [37.77, -79.43], [39.04, -85.2]];
+    var latlngs = [ [38.91,-77.07], [37.77, -79.43], [39.04, -85.2] ];
     var polyline = L.polyline(latlngs, {color: 'red'});
     polyline.addTo(mymap);
 

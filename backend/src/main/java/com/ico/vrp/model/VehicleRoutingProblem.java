@@ -1,8 +1,10 @@
 package main.java.com.ico.vrp.model;
 
 import io.jenetics.EnumGene;
+import io.jenetics.Phenotype;
 import io.jenetics.engine.Codec;
 import io.jenetics.engine.Codecs;
+import io.jenetics.engine.Constraint;
 import io.jenetics.engine.Problem;
 import io.jenetics.util.ISeq;
 
@@ -12,18 +14,18 @@ import java.util.stream.IntStream;
 import static java.lang.Math.hypot;
 import static java.util.Objects.requireNonNull;
 
-public class VehicleRoutingProblem implements Problem<ISeq<Location>, EnumGene<Location>, Double> {
+public class VehicleRoutingProblem implements Problem<ISeq<Customer>, EnumGene<Customer>, Double> {
 
-    private final ISeq<Location> locations;
+    private final ISeq<Customer> customers;
     private final Location warehouse;
 
-    public VehicleRoutingProblem(Location warehouse, ISeq<Location> locations) {
+    public VehicleRoutingProblem(Location warehouse, ISeq<Customer> customers) {
         this.warehouse = warehouse;
-        this.locations = requireNonNull(locations);
+        this.customers = requireNonNull(customers);
     }
 
     @Override
-    public Function<ISeq<Location>, Double> fitness() {
+    public Function<ISeq<Customer>, Double> fitness() {
         return l -> IntStream.range(0, l.length())
                 .mapToDouble(i -> {
                     Location l1;
@@ -31,22 +33,20 @@ public class VehicleRoutingProblem implements Problem<ISeq<Location>, EnumGene<L
 
                     if(i == 0 || i == l.length() - 1) {
                         l1 = warehouse;
-                        l2 = l.get(i);
+                        l2 = l.get(i).getLocation();
                     }
                     else {
-                        l1 = l.get(i);
-                        l2 = l.get(i+1);
+                        l1 = l.get(i).getLocation();
+                        l2 = l.get(i+1).getLocation();
                     }
 
-                    /*final Location l1 = l.get(i-1);
-                    final Location l2 = l.get(i);*/
                     return hypot(l1.getLatitude() - l2.getLatitude(), l1.getLongitude() - l2.getLongitude());
                 }).sum();
     }
 
     @Override
-    public Codec<ISeq<Location>, EnumGene<Location>> codec() {
-        return Codecs.ofPermutation(locations);
+    public Codec<ISeq<Customer>, EnumGene<Customer>> codec() {
+        return Codecs.ofPermutation(customers);
     }
 
 }

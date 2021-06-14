@@ -2,18 +2,18 @@ package main.java.com.ico.vrp.model;
 
 public class Request {
 
-    private Location warehouse;
-    private Location[] customers;
+    private final Customer[] clientes;
+    private final Vehicle[] veiculos;
 
-    public Request(Location warehouse, Location[] customers) {
-        this.warehouse = warehouse;
-        this.customers = customers;
+    public Request(Customer[] clientes, Vehicle[] veiculos) {
+        this.clientes = clientes;
+        this.veiculos = veiculos;
     }
 
-    public Location[] getLocations() {
-        return customers;
+    public Customer[] getClientes() {
+        return clientes;
     }
 
-    public Location getWarehouse() { return warehouse; }
+    public Location getWarehouse() { return veiculos[0].getArmazemPartida(); }
 
 }

@@ -1,5 +1,6 @@
 package main.java.com.ico.vrp.service;
 
+import main.java.com.ico.vrp.model.Customer;
 import main.java.com.ico.vrp.model.Location;
 import main.java.com.ico.vrp.model.Request;
 import main.java.com.ico.vrp.model.VehicleRoutingProblem;
@@ -20,10 +21,10 @@ public class RequestService {
     public RequestService() {}
 
     public Location[] processRequest(Request request) {
-        ISeq<Location> locations = ISeq.of(request.getLocations());
+        ISeq<Customer> customers = ISeq.of(request.getClientes());
         Location warehouse = request.getWarehouse();
-        VehicleRoutingProblem vrp = new VehicleRoutingProblem(warehouse, locations);
-        Engine<EnumGene<Location>, Double> engine = Engine
+        VehicleRoutingProblem vrp = new VehicleRoutingProblem(warehouse, customers);
+        Engine<EnumGene<Customer>, Double> engine = Engine
                 .builder(vrp)
                 .optimize(Optimize.MINIMUM)
                 .maximalPhenotypeAge(11)
@@ -35,7 +36,7 @@ public class RequestService {
 
         EvolutionStatistics<Double, ?> statistics = EvolutionStatistics.ofNumber();
 
-        Phenotype<EnumGene<Location>, Double> best = engine.stream()
+        Phenotype<EnumGene<Customer>, Double> best = engine.stream()
                 .limit(bySteadyFitness(25))
                 .limit(250)
                 .peek(statistics)
@@ -48,20 +49,19 @@ public class RequestService {
         System.out.println(best.genotype().geneCount());
         System.out.println(best.genotype().length());
 
-        Iterator<EnumGene<Location>> itr = best.genotype().chromosome().iterator();
+        Iterator<EnumGene<Customer>> itr = best.genotype().chromosome().iterator();
         Location[] path = new Location[best.genotype().chromosome().length()+2];
 
         for(int i = 0; i < path.length; i++) {
             if(i == 0 || i == path.length - 1) {
                 path[i] = warehouse;
             } else {
-                EnumGene<Location> gene = itr.next();
-                path[i] = gene.allele();
+                EnumGene<Customer> gene = itr.next();
+                path[i] = gene.allele().getLocation();
             }
         }
 
         return path;
-        //return new Response(path);
     }
 
 }

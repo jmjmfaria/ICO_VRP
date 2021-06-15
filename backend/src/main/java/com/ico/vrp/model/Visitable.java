@@ -5,7 +5,7 @@ public class Visitable extends Location {
     private final int[] timeWindow;
 
     public Visitable(Location location, int[] timeWindow) {
-        super(location.getLatitude(), location.getLatitude());
+        super(location.getLatitude(), location.getLongitude());
         this.timeWindow = timeWindow;
     }
 

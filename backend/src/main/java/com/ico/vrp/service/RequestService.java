@@ -4,23 +4,28 @@ import main.java.com.ico.vrp.model.*;
 import io.jenetics.*;
 import io.jenetics.engine.Engine;
 import io.jenetics.engine.EvolutionStatistics;
+
 import static io.jenetics.engine.EvolutionResult.toBestPhenotype;
 import static io.jenetics.engine.Limits.bySteadyFitness;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.Iterator;
 
 @Service
 public class RequestService {
 
     @Autowired
-    public RequestService() {}
+    public RequestService() {
+    }
 
     public FullResponse processRequest(Request request) {
         FullResponse finalResult = new FullResponse();
 
         //ISeq<Customer> customers = ISeq.of(request.getClientes());
         Visitable warehouse = request.getWarehouse();
+        System.out.println(warehouse.getLatitude() + " " + warehouse.getLongitude());
         VehicleRoutingProblem vrp = new VehicleRoutingProblem(warehouse, request.getClientes());
         Engine<EnumGene<Visitable>, Double> engine = Engine
                 .builder(vrp)
@@ -58,6 +63,7 @@ public class RequestService {
         // Codigo de Exemplo
 
         // Varios Clientes
+        path = sortWarehouse(path, warehouse);
         SingleResponse c1 = new SingleResponse(request.getVeiculos()[0].getId(), path);
         //SingleResponse c2 = new SingleResponse(request.getVeiculos()[0].getId(), path);
 
@@ -65,6 +71,20 @@ public class RequestService {
         //finalResult.addResult(c2);
 
         return finalResult;
+    }
+
+    private Location[] sortWarehouse(Location[] path, Location warehouse) {
+        Location[] result = new Location[path.length];
+
+        result[0] = warehouse;
+        result[path.length - 1] = new Visitable(warehouse.getLatitude(), warehouse.getLongitude(), new int[]{0, 0});
+
+        int i = 1;
+        for (Location l : path)
+            if (l.getLatitude() != warehouse.getLatitude() || l.getLongitude() != warehouse.getLongitude())
+                result[i++] = l;
+
+        return result;
     }
 
 }

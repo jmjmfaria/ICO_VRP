@@ -24,8 +24,8 @@ public class Customer extends Visitable {
         return price;
     }
 
-    private static int[] generateTimeWindow(String[] timeWindow){
-        int[] parsed = new int[2];
+    private static double[] generateTimeWindow(String[] timeWindow){
+        double[] parsed = new double[2];
         Calendar cal = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
         for (int i = 0; i != timeWindow.length; i++) {

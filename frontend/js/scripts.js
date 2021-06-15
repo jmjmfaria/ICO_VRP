@@ -257,6 +257,7 @@ function getRoutes(){
     }
     locations.veiculos.forEach(function(veh, vehID){
         vehID = vehID + 1
+        veh.vehicleId = vehID
         veh.cargaTotal = parseInt($("#carga"+vehID+"").val())
         veh.deslocMax = parseInt($("#dist"+vehID+"").val())
         if ($("#vehID"+vehID+"").val() == "0") {
@@ -301,7 +302,7 @@ function getRoutes(){
     var polyline = L.polyline(latlngs, {color: 'red'});
     polyline.addTo(mymap); */
 
-    //console.log(JSON.stringify(body))
+    console.log(JSON.stringify(body))
     
     $.ajax({
         url: "http://localhost:8080/request",

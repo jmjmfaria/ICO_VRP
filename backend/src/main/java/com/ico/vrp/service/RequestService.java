@@ -28,11 +28,10 @@ public class RequestService {
         Visitable warehouse = request.getWarehouse();
         System.out.println(warehouse.getLatitude() + " " + warehouse.getLongitude());
 
-        Constraint<EnumGene<Visitable>, Double> contraint = new VRPConstraint();
+        //Constraint<EnumGene<Visitable>, Double> contraint = new VRPConstraint();
         VehicleRoutingProblem vrp = new VehicleRoutingProblem(warehouse, request.getClientes(), request.getVeiculos());
         Engine<EnumGene<Visitable>, Double> engine = Engine
                 .builder(vrp)
-                .constraint(contraint)
                 .optimize(Optimize.MINIMUM)
                 .maximalPhenotypeAge(11)
                 .populationSize(500)
@@ -66,26 +65,22 @@ public class RequestService {
             path[i] = new Location(gene.allele().getLatitude(), gene.allele().getLongitude());
         }
 
-        // Codigo de Exemplo
-
-        // Varios Clientes
         path = sortWarehouse(path, warehouse);
         SingleResponse c1 = new SingleResponse(request.getVeiculos()[0].getId(), path);
-        //SingleResponse c2 = new SingleResponse(request.getVeiculos()[0].getId(), path);
 
         finalResult.addResult(c1);
-        //finalResult.addResult(c2);
 
         return finalResult;
     }
 
     private Location[] sortWarehouse(Location[] path, Location warehouse) {
-        Location[] result = new Location[path.length];
+        Location[] result = new Location[path.length + 2];
 
         result[0] = warehouse;
-        result[path.length - 1] = new Visitable(warehouse.getLatitude(), warehouse.getLongitude(), new double[]{0, 0});
+        result[result.length - 1] = new Visitable(warehouse.getLatitude(), warehouse.getLongitude(), new double[]{0, 0});
 
         int i = 1;
+
         for (Location l : path)
             if (l.getLatitude() != warehouse.getLatitude() || l.getLongitude() != warehouse.getLongitude())
                 result[i++] = l;

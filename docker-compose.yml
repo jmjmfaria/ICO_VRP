@@ -5,6 +5,6 @@ services:
     ports:
       - 80:80
   backend:
-    build: frontend
+    build: backend
     ports:
       - 8080:8080

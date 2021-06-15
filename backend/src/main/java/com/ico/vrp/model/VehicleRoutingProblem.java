@@ -3,44 +3,50 @@ package main.java.com.ico.vrp.model;
 import io.jenetics.*;
 import io.jenetics.engine.Codec;
 import io.jenetics.engine.Codecs;
-import io.jenetics.engine.Constraint;
 import io.jenetics.engine.Problem;
 import io.jenetics.util.ISeq;
 
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
 import static java.lang.Math.hypot;
 
-public class VehicleRoutingProblem implements Problem<ISeq<Visitable>, EnumGene<Visitable>, Double>, Constraint<EnumGene<Visitable>, Double> {
+public class VehicleRoutingProblem implements Problem<ISeq<Visitable>, EnumGene<Visitable>, Double> {
 
     //private final ISeq<Customer> customers;
-    private final Location warehouse;
+    private final Visitable warehouse;
     private final ISeq<Visitable> locationsToVisit;
+    private final Vehicle[] vehicles;
 
     /*public VehicleRoutingProblem(Location warehouse, ISeq<Customer> customers) {
         this.warehouse = warehouse;
         this.customers = requireNonNull(customers);
     }*/
 
-    public VehicleRoutingProblem(Visitable warehouse, Visitable[] customers) {
+    public VehicleRoutingProblem(Visitable warehouse, Visitable[] customers, Vehicle[] vehicles) {
         this.warehouse = warehouse;
         List<Visitable> locations = new LinkedList(Arrays.asList(customers));
-        locations.add(warehouse);
-        locations.add(new Visitable(warehouse.getLatitude(), warehouse.getLongitude(), new int[]{0,0}));
+        //locations.add(new Warehouse(warehouse.getLatitude(), warehouse.getLongitude(), warehouse.getTimeWindow()));
+        //locations.add(new Warehouse(warehouse.getLatitude(), warehouse.getLongitude(), new int[]{0,0}));
         this.locationsToVisit = ISeq.of(locations);
+        this.vehicles = vehicles;
     }
 
     @Override
     public Function<ISeq<Visitable>, Double> fitness() {
-        return l -> IntStream.range(0, l.length())
+        AtomicReference<Double> time = new AtomicReference<>((double) 0);
+
+        return l -> IntStream.range(0, l.length() - 1)
                 .mapToDouble(i -> {
-                    Location l1;
-                    Location l2;
+                    Visitable l1;
+                    Visitable l2;
+
+                    /*Location l1 = l.get(i);
+                    Location l2 = l.get(i+1);*/
 
                     if(i == 0 || i == l.length() - 1) {
                         l1 = warehouse;
@@ -51,7 +57,25 @@ public class VehicleRoutingProblem implements Problem<ISeq<Visitable>, EnumGene<
                         l2 = l.get(i+1);
                     }
 
-                    return hypot(l1.getLatitude() - l2.getLatitude(), l1.getLongitude() - l2.getLongitude());
+                    double distance = distance(l1.getLatitude(),l1.getLongitude(), l2.getLatitude(), l2.getLongitude(), "K");
+                    double distanceCost = vehicles[0].getCustoDist()*distance;
+
+                    double travelTime = (distance/30)*60;
+
+                    double penalty = 0;
+
+                    if(i == 0) {
+                        time.set(l2.getTimeWindow()[0]);
+                    } else if((time.get() + travelTime) <= l2.getTimeWindow()[1]) {
+                        time.set(time.get()+travelTime);
+                    } else if((time.get() + travelTime) > l2.getTimeWindow()[1]) {
+                        time.set(time.get()+travelTime);
+                        penalty += 500;
+                    }
+
+                    double timeCost = time.get()*vehicles[0].getCustoHora();
+
+                    return distanceCost + timeCost + penalty;
                 }).sum();
     }
 
@@ -60,64 +84,23 @@ public class VehicleRoutingProblem implements Problem<ISeq<Visitable>, EnumGene<
         return Codecs.ofPermutation(locationsToVisit);
     }
 
-    @Override
-    public boolean test(Phenotype<EnumGene<Visitable>, Double> phenotype) {
-        Iterator<EnumGene<Visitable>> itr = phenotype.genotype().chromosome().iterator();
-        boolean first = true;
-
-        while (itr.hasNext()) {
-            Visitable location = itr.next().allele();
-
-            if (first && (location.getLatitude() != warehouse.getLatitude() || location.getLongitude() != warehouse.getLongitude())) {
-                return false;
-            } else if (first) {
-                first = false;
-            } else if (!itr.hasNext() && (location.getLatitude() != warehouse.getLatitude() || location.getLongitude() != warehouse.getLongitude())) {
-                return false;
-            }
+    private static double distance(double lat1, double lon1, double lat2, double lon2, String unit) {
+        if ((lat1 == lat2) && (lon1 == lon2)) {
+            return 0;
         }
-
-        return true;
-    }
-
-    @Override
-    public Phenotype<EnumGene<Visitable>, Double> repair(Phenotype<EnumGene<Visitable>, Double> phenotype, long generation) {
-        return Phenotype.of(
-                Genotype.of(
-                        PermutationChromosome.of(
-                                ISeq.of(repair((Visitable[]) phenotype.genotype().chromosome().stream().toArray()))
-                        )
-                ), generation
-        );
-    }
-
-    private Visitable[] repair(Visitable[] toRepair) {
-        Visitable first = toRepair[0];
-        Visitable last = toRepair[toRepair.length - 1];
-
-        if (first.getLatitude() != warehouse.getLatitude() || first.getLongitude() != warehouse.getLongitude()) {
-            for (int i = 0; i <= toRepair.length; i++) {
-                Visitable aux = toRepair[i];
-
-                if (aux.getLatitude() == warehouse.getLatitude() && aux.getLongitude() == warehouse.getLongitude()) {
-                    toRepair[0] = aux;
-                    toRepair[i] = first;
-                }
+        else {
+            double theta = lon1 - lon2;
+            double dist = Math.sin(Math.toRadians(lat1)) * Math.sin(Math.toRadians(lat2)) + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) * Math.cos(Math.toRadians(theta));
+            dist = Math.acos(dist);
+            dist = Math.toDegrees(dist);
+            dist = dist * 60 * 1.1515;
+            if (unit.equals("K")) {
+                dist = dist * 1.609344;
+            } else if (unit.equals("N")) {
+                dist = dist * 0.8684;
             }
+            return (dist);
         }
-
-        if (last.getLatitude() != warehouse.getLatitude() || last.getLongitude() != warehouse.getLongitude()) {
-            for (int i = 0; i <= toRepair.length; i++) {
-                Visitable aux = toRepair[i];
-
-                if (aux.getLatitude() == warehouse.getLatitude() && aux.getLongitude() == warehouse.getLongitude()) {
-                    toRepair[toRepair.length - 1] = aux;
-                    toRepair[i] = first;
-                }
-            }
-        }
-
-        return toRepair;
     }
 
 }

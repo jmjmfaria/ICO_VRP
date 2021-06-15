@@ -4,6 +4,8 @@ var clientesIconUrl= 'data:image/svg+xml;base64,' + btoa(clientesSvg);
 var armazensSvg = '<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="warehouse" class="svg-inline--fa fa-warehouse fa-w-20" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><path fill="currentColor" d="M504 352H136.4c-4.4 0-8 3.6-8 8l-.1 48c0 4.4 3.6 8 8 8H504c4.4 0 8-3.6 8-8v-48c0-4.4-3.6-8-8-8zm0 96H136.1c-4.4 0-8 3.6-8 8l-.1 48c0 4.4 3.6 8 8 8h368c4.4 0 8-3.6 8-8v-48c0-4.4-3.6-8-8-8zm0-192H136.6c-4.4 0-8 3.6-8 8l-.1 48c0 4.4 3.6 8 8 8H504c4.4 0 8-3.6 8-8v-48c0-4.4-3.6-8-8-8zm106.5-139L338.4 3.7a48.15 48.15 0 0 0-36.9 0L29.5 117C11.7 124.5 0 141.9 0 161.3V504c0 4.4 3.6 8 8 8h80c4.4 0 8-3.6 8-8V256c0-17.6 14.6-32 32.6-32h382.8c18 0 32.6 14.4 32.6 32v248c0 4.4 3.6 8 8 8h80c4.4 0 8-3.6 8-8V161.3c0-19.4-11.7-36.8-29.5-44.3z"></path></svg>'
 var armazensIconUrl= 'data:image/svg+xml;base64,' + btoa(armazensSvg);
 
+const access_token = 'pk.eyJ1IjoibW9vemR6biIsImEiOiJjazd5eGh6bjAwMGl1M21vOTdjMTI1d3NzIn0.cxQh0B_dBFEc7xNjtn0-zQ'
+
 var mymap = L.map('mapid').setView([38.717158, -9.139066], 13);
 var currentMarker
 var locations = {"armazens":[],"clientes":[],"veiculos":[]}
@@ -29,7 +31,7 @@ L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_toke
     id: 'mapbox/streets-v11',
     tileSize: 512,
     zoomOffset: -1,
-    accessToken: 'pk.eyJ1IjoibW9vemR6biIsImEiOiJjazd5eGh6bjAwMGl1M21vOTdjMTI1d3NzIn0.cxQh0B_dBFEc7xNjtn0-zQ'
+    accessToken: access_token
 }).addTo(mymap);
 
 mymap.on('click', onMapClick);
@@ -159,12 +161,12 @@ function getClienteHTML(markerID,input,option,infoID){
                         '<input type="time" class="form-control" value="20:00" aria-label="20:00"id="time2'+markerID+'">'+
                     '</div>'+
                 '</div>'+
-                '<div class="row">'+
+                /* '<div class="row">'+
                     '<div class="form-check">'+
                     '<input class="form-check-input" type="checkbox" value="" id="parcial'+markerID+'">'+
                     '<label class="form-check-label" for="parcial'+markerID+'">Permite entregas parciais</label>'+
                     '</div>'+
-                '</div>'+
+                '</div>'+ */
                 '<div class="row">'+
                     '<button type="button" class="btn btn-outline-danger" onclick="delLocation(&quot;'+option+'&quot;,'+infoID+','+markerID+')" >Remover</button>'+
                 '</div>'+
@@ -276,36 +278,63 @@ function getRoutes(){
         itemObject['quantity'] = parseInt($("#quantity"+itemObject.markerID+"").val())
         itemObject['price'] = parseInt($("#price"+itemObject.markerID+"").val())
         itemObject['timeWindow'] = [$("#time1"+itemObject.markerID+"").val(),$("#time2"+itemObject.markerID+"").val()]
-        itemObject['allowParcial'] = $("#parcial"+itemObject.markerID+"").is(":checked")
+        /* itemObject['allowParcial'] = $("#parcial"+itemObject.markerID+"").is(":checked") */
 
         delete itemObject.markerID
         delete itemObject.name
         body.clientes.push(itemObject)
     })
 
-    /* $.ajax({
-        url: "/api/users/:id/videos",
-        method: "post",
-        data: body,
-        success: function (res, status) {
-            console.log(res)
-        }
-        ,error: function () { alert(JSON.stringify('error')); }
-
-    }); */
-    $("#percurso").html($("#percurso").html()+
+    /* $("#percurso").html($("#percurso").html()+
     "<dl>" +
     "<dt>Veiculo 1</dt>" +
     "<dd>- Client 1</dd>" +
     "<dd>- Client 3</dd>" +
     "<dt>Veiculo 2</dt>" +
     "<dd>- Cliente 2</dd>" +
-    "</dl>") 
-
+    "</dl>")  */
+     /*var latlngs = [];
+    body.clientes.forEach(function(item){
+        latlngs.push([item.latitude,item.longitude])
+    })
     var latlngs = [ [38.91,-77.07], [37.77, -79.43], [39.04, -85.2] ];
     var polyline = L.polyline(latlngs, {color: 'red'});
-    polyline.addTo(mymap);
+    polyline.addTo(mymap); */
 
-    console.log(JSON.stringify(body))
+    //console.log(JSON.stringify(body))
+    
+    $.ajax({
+        url: "http://localhost:8080/request",
+        method: "post",
+        contentType: "application/json",
+        data:body,
+        success: function (res, status) {
+            var url = "https://api.mapbox.com/directions/v5/mapbox/driving/"
+            body.clientes.forEach(function(item, idx, array){
+                url +=  item.longitude+","+ item.latitude
+                if(!(idx === array.length -1)) {
+                    url += ";"
+                }
+            })
+            url += '?steps=true&geometries=geojson&access_token=' + access_token;
+
+            $.ajax({
+                url: url,
+                method: "get",
+                success: function (res, status) {
+                    var latlngs = [];
+                    var coords = res.routes[0].geometry;
+                    coords.coordinates.forEach(function(item){
+                        console.log(item)
+                        latlngs.push([item[1],item[0]])
+                    })
+                    //console.log(res)
+                    console.log(latlngs)
+                    var polyline = L.polyline(latlngs, {color: 'red'});
+                    polyline.addTo(mymap);
+                }
+                ,error: function () { alert(JSON.stringify('error')); }});
+    }
+    ,error: function () { alert(JSON.stringify('error')); }});
 }
 

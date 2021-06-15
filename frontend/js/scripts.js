@@ -69,6 +69,7 @@ function newLocation() {
     var icon2Use = option == "armazens" ? armazensIcon : clientesIcon
     var marker = L.marker({"lat":currentMarker.lat,"lng":currentMarker.lng},{icon:icon2Use}).addTo(mymap);
     var markerID = markers.push(marker) - 1
+
     var input = $('#nameInput').val() != "" ? $('#nameInput').val() : (option == 'armazens'? "Armazem #": "Cliente #") + markerID
     var location = {
         "latitude": currentMarker.lat,
@@ -81,9 +82,11 @@ function newLocation() {
     console.log(locations)
     console.log(infoID)
     if (option == 'armazens') {
+        marker.bindPopup("<b>"+input+"</b>")
         newEntry = getArmazemHTML(markerID,input,option,infoID)
         updateWarehouses()
     } else if (option == 'clientes') {
+        marker.bindPopup("<b>"+input+"</b>")
         newEntry = getClienteHTML(markerID,input,option,infoID)
     }      
     //var newEntry = '<li class="list-group-item" id="'+markerID+'" onclick="centerMap('+markerID+')">'+$('#nameInput').val()+'<i class="fas fa-pencil-alt text-primary" onclick="editInfo(&quot;'+option+'&quot;,'+infoID+')"></i><i class="far fa-trash-alt text-danger" onclick="delLocation(&quot;'+option+'&quot;,'+infoID+')"></i></li>'//"'+option+'",'+infoID+'
@@ -189,8 +192,8 @@ function delVehicle(vehID){
 
 function getVehicleHTML(){
     var vehID = locations.veiculos.push({
-        "cargaTotal": 10,
-        "deslocMax": 10
+        "custoHora": 10,
+        "custoDist": 10
     })
     console.log(vehID)
     var s = ''
@@ -203,14 +206,14 @@ function getVehicleHTML(){
                     '<div class="container">'+
                         '<div class="row">'+
                             '<div class="input-group mb-3">'+
-                                '<span class="input-group-text">Carga Total:</span>'+
+                                '<span class="input-group-text">Custo - Hora:</span>'+
                                 '<input class="form-control" type="number" id="carga'+vehID+'" value="10">'+
-                                '<span class="input-group-text">kg</span>'+
+                                '<span class="input-group-text">€/h</span>'+
                             '</div>'+
                         '</div>'+
                         '<div class="row">'+
                             '<div class="input-group mb-3">'+
-                            '<span class="input-group-text">Custo Deslocacao:</span>'+
+                            '<span class="input-group-text">Custo - Distancia:</span>'+
                             '<input class="form-control" type="number" value="10" id="dist'+vehID+'">'+
                             '<span class="input-group-text">€/km</span>'+
                             '</div>'+
@@ -249,93 +252,111 @@ function getWarehouses() {
         return s
     } else return '<option value="0" selected>Nao existem armazens</option>'
 }
-
+var line = []
+var latlngs = []
+var linepoly
+var polyline
 function getRoutes(){
+    $("#percurso").html("<h3>Percursos</h3>")
     var body = {
         "clientes":[],
         "veiculos":[]
     }
-    locations.veiculos.forEach(function(veh, vehID){
-        vehID = vehID + 1
-        veh.vehicleId = vehID
-        veh.cargaTotal = parseInt($("#carga"+vehID+"").val())
-        veh.deslocMax = parseInt($("#dist"+vehID+"").val())
-        if ($("#vehID"+vehID+"").val() == "0") {
-            return $('.toast').toast('show')
-        } else {
-            veh.armazemPartida = {}
-            locations.armazens.forEach(function(item){
-                if($("#vehID"+vehID).val() == item.name ){
-                    veh.armazemPartida.latitude = item.latitude
-                    veh.armazemPartida.longitude = item.longitude
-                }
-            })
-            body.veiculos.push(veh)
-        }
-    })
-
-    locations.clientes.forEach(function(item){
-        var itemObject = jQuery.extend(true, {}, item)
-        itemObject['quantity'] = parseInt($("#quantity"+itemObject.markerID+"").val())
-        itemObject['price'] = parseInt($("#price"+itemObject.markerID+"").val())
-        itemObject['timeWindow'] = [$("#time1"+itemObject.markerID+"").val(),$("#time2"+itemObject.markerID+"").val()]
-        /* itemObject['allowParcial'] = $("#parcial"+itemObject.markerID+"").is(":checked") */
-
-        delete itemObject.markerID
-        delete itemObject.name
-        body.clientes.push(itemObject)
-    })
-
-    /* $("#percurso").html($("#percurso").html()+
-    "<dl>" +
-    "<dt>Veiculo 1</dt>" +
-    "<dd>- Client 1</dd>" +
-    "<dd>- Client 3</dd>" +
-    "<dt>Veiculo 2</dt>" +
-    "<dd>- Cliente 2</dd>" +
-    "</dl>")  */
-     /*var latlngs = [];
-    body.clientes.forEach(function(item){
-        latlngs.push([item.latitude,item.longitude])
-    })
-    var latlngs = [ [38.91,-77.07], [37.77, -79.43], [39.04, -85.2] ];
-    var polyline = L.polyline(latlngs, {color: 'red'});
-    polyline.addTo(mymap); */
-
-    console.log(JSON.stringify(body))
-    
-    $.ajax({
-        url: "http://localhost:8080/request",
-        method: "post",
-        contentType: "application/json",
-        data:body,
-        success: function (res, status) {
-            var url = "https://api.mapbox.com/directions/v5/mapbox/driving/"
-            body.clientes.forEach(function(item, idx, array){
-                url +=  item.longitude+","+ item.latitude
-                if(!(idx === array.length -1)) {
-                    url += ";"
-                }
-            })
-            url += '?steps=true&geometries=geojson&access_token=' + access_token;
-
-            $.ajax({
-                url: url,
-                method: "get",
-                success: function (res, status) {
-                    var latlngs = [];
-                    var coords = res.routes[0].geometry;
-                    coords.coordinates.forEach(function(item){
-                        console.log(item)
-                        latlngs.push([item[1],item[0]])
-                    })
-                    //console.log(res)
-                    console.log(latlngs)
-                    var polyline = L.polyline(latlngs, {color: 'red'});
-                    polyline.addTo(mymap);
-                }
-                ,error: function () { alert(JSON.stringify('error')); }});
+    if(locations.veiculos.length == 0) {
+        $(".toast-body").html("Nao existem veiculos!")
+        return $('.toast').toast('show')
     }
-    ,error: function () { alert(JSON.stringify('error')); }});
+    else {
+        locations.veiculos.forEach(function(veh, vehID){
+            vehID = vehID + 1
+            veh.vehicleId = vehID.toString()
+            veh.custoHora = parseInt($("#carga"+vehID+"").val())
+            veh.custoDist = parseInt($("#dist"+vehID+"").val())
+            if ($("#vehID"+vehID+"").val() == "0") {
+                $(".toast-body").html("Existem veiculos sem armazem de partida!")
+                return $('.toast').toast('show')
+            } else {
+                veh.armazemPartida = {}
+                locations.armazens.forEach(function(item){
+                    if($("#vehID"+vehID).val() == item.name ){
+                        veh.armazemPartida.latitude = item.latitude
+                        veh.armazemPartida.longitude = item.longitude
+                    }
+                })
+                body.veiculos.push(veh)
+                if(locations.clientes.length == 0){
+                    $(".toast-body").html("Nao existem clientes!")
+                    return $('.toast').toast('show')
+                } else {
+                    locations.clientes.forEach(function(item){
+                        var itemObject = jQuery.extend(true, {}, item)
+
+                        itemObject['quantity'] = parseInt($("#quantity"+itemObject.markerID+"").val())
+                        itemObject['price'] = parseInt($("#price"+itemObject.markerID+"").val())
+                        itemObject['timeWindow'] = [$("#time1"+itemObject.markerID+"").val(),$("#time2"+itemObject.markerID+"").val()]
+                        /* itemObject['allowParcial'] = $("#parcial"+itemObject.markerID+"").is(":checked") */
+                        delete itemObject.markerID
+                        itemObject.name
+                        body.clientes.push(itemObject)
+                    })
+                
+                    console.log(JSON.stringify(body))
+                    const colors = ["red","green","blue"]
+                
+                    $.ajax({
+                        url: "http://localhost:8080/request",
+                        method: "post",
+                        contentType: "application/json",
+                        data:JSON.stringify(body),
+                        success: function (res, status) {
+                            console.log(res.results)
+                            var s="<dl>"
+                            res.results.forEach(function(item){
+                                s+= "<dt>Veiculo "+(parseInt(vehID))+"</dt>"
+                                line = []
+                                var url = "https://api.mapbox.com/directions/v5/mapbox/driving/"
+                                item.clients.forEach(function(client,clientID, array){
+                                    
+                                    if(clientID == 0 || clientID == item.clients.length - 1) {
+                                        s+= "<dd>- Armazem </dd>"
+                                        //client.longitude = body.veiculos[item.vehicleId].armazemPartida.longitude
+                                    }
+                                    else s+= "<dd>- Client"+ clientID +"</dd>"
+                                    url +=  client.longitude+","+ client.latitude
+                                    if(!(clientID === array.length -1)) {
+                                        url += ";"
+                                    }
+                                    line.push([client.latitude,client.longitude])
+                                })
+                                url += '?steps=true&geometries=geojson&access_token=' + access_token;
+                                if (mymap.hasLayer(linepoly)) linepoly.remove(mymap)
+                                linepoly = L.polyline(line, {color: colors[item.vehicleId], opacity: 0.3});
+                                linepoly.addTo(mymap);
+                                $.ajax({
+                                    url: url,
+                                    method: "get",
+                                    success: function (res, status) {
+                                        latlngs = [];
+                                        var coords = res.routes[0].geometry;
+                                        coords.coordinates.forEach(function(item){
+                                            //console.log(item)
+                                            latlngs.push([item[1],item[0]])
+                                        })
+                                        if (mymap.hasLayer(polyline)) polyline.remove(mymap)
+                                        polyline = L.polyline(latlngs, {color: colors[item.vehicleId]});
+                                        polyline.addTo(mymap);
+                                    }
+                                    ,error: function () { alert(JSON.stringify('error')); }});
+                            })
+                            s+="</dl>"
+                            $("#percurso").html($("#percurso").html()+s)
+                            }
+                            
+                            ,error: function () { alert(JSON.stringify('error')); }});
+                }
+            }
+        })
+    }
 }
+
 

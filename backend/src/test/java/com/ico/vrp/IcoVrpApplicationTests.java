@@ -1,4 +1,4 @@
-package test.java.com.ico.vrp;
+package com.ico.vrp;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

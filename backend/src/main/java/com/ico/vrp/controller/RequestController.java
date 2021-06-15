@@ -5,6 +5,7 @@ import main.java.com.ico.vrp.model.Location;
 import main.java.com.ico.vrp.model.Request;
 import main.java.com.ico.vrp.service.RequestService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,6 +21,7 @@ public class RequestController {
     }
 
     @PostMapping("/request")
+    @CrossOrigin
     public FullResponse request(@RequestBody Request request) {
         return requestService.processRequest(request);
     }

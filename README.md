@@ -21,7 +21,7 @@ Projeto composto por duas componentes:
 
 * Backend - Java, Spring, Jnetics
 * Frontend - HTML, CSS, Javascript, Bootstrap
-* Comunicacão Frontend/Backend atraves de uma REST API
+* Comunicação Frontend/Backend atraves de uma REST API
 
 --------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------

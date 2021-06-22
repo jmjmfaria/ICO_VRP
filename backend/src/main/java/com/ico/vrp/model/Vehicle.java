@@ -10,7 +10,7 @@ public class Vehicle {
 
     private Visitable armazemPartida;
 
-    public Vehicle(int cargaTotal, int deslocMax, int custoDist, int custoHora, Location armazemPartida) {
+    public Vehicle(int cargaTotal, int deslocMax, int custoDist, int custoHora, Location armazemPartida, String name) {
         this.cargaTotal = cargaTotal;
         this.deslocMax = deslocMax;
         this.custoDist = custoDist;

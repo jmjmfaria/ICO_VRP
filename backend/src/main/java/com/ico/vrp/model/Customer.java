@@ -10,8 +10,8 @@ public class Customer extends Visitable {
     private final int quantity;
     private final double price;
 
-    public Customer(double latitude, double longitude, String[] timeWindow, int quantity, double price) {
-        super(latitude, longitude, generateTimeWindow(timeWindow));
+    public Customer(double latitude, double longitude, String[] timeWindow, int quantity, double price, String name) {
+        super(latitude, longitude, generateTimeWindow(timeWindow), name);
         this.quantity = quantity;
         this.price = price;
     }

@@ -1,6 +1,5 @@
 package main.java.com.ico.vrp.service;
 
-import io.jenetics.engine.Constraint;
 import main.java.com.ico.vrp.model.*;
 import io.jenetics.*;
 import io.jenetics.engine.Engine;
@@ -62,7 +61,7 @@ public class RequestService {
 
         for (int i = 0; i < path.length; i++) {
             EnumGene<Visitable> gene = itr.next();
-            path[i] = new Location(gene.allele().getLatitude(), gene.allele().getLongitude());
+            path[i] = new Location(gene.allele().getLatitude(), gene.allele().getLongitude(), gene.allele().getName());
         }
 
         path = sortWarehouse(path, warehouse);
@@ -77,7 +76,7 @@ public class RequestService {
         Location[] result = new Location[path.length + 2];
 
         result[0] = warehouse;
-        result[result.length - 1] = new Visitable(warehouse.getLatitude(), warehouse.getLongitude(), new double[]{0, 0});
+        result[result.length - 1] = new Visitable(warehouse.getLatitude(), warehouse.getLongitude(), new double[]{0, 0}, "nome");
 
         int i = 1;
 

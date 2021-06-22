@@ -21,7 +21,10 @@ Projeto composto por duas componentes:
 
 * Backend - Java, Spring, Jnetics
 * Frontend - HTML, CSS, Javascript, Bootstrap
-* Comunicacao Frontend/Backend atraves de uma REST API
+* Comunicacão Frontend/Backend atraves de uma REST API
+
+--------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------
 
 # Getting started
 Clone this repository to your local machine and open cmd in root directory.
